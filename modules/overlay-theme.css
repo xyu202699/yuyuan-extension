@@ -1,0 +1,80 @@
+/* Loaded only inside our shadow roots. Host themes never enter this tree. */
+:is(#yuyuan-preset-editor,#yuyuan-regex-groups,#yuyuan-update-popup) {
+    font:13px/1.45 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    -webkit-text-size-adjust:100%; text-size-adjust:100%; color-scheme:light;
+}
+:where(#yuyuan-preset-editor *,#yuyuan-regex-groups *,#yuyuan-update-popup *) {
+    font-family:inherit; font-size:13px !important; line-height:1.45;
+}
+:is(#yuyuan-preset-editor,#yuyuan-regex-groups,#yuyuan-update-popup) :is(h2,h3) { font-size:18px !important; line-height:1.3; }
+:is(#yuyuan-preset-editor,#yuyuan-regex-groups) :is(.ype-brand,.yrg-kicker) { font-size:11px !important; }
+#yuyuan-preset-editor .ype-tabs button { min-width:0; font-size:13px !important; }
+#yuyuan-preset-editor .ype-destination h3 { font-size:13px !important; }
+#yuyuan-preset-editor .ype-expand-editor h3, #yuyuan-regex-groups .yrg-dialog h3 { font-size:18px !important; }
+#yuyuan-preset-editor :is(input,select,textarea), #yuyuan-regex-groups :is(input,select,textarea) { font-size:13px !important; }
+#yuyuan-preset-editor .ype-destination label small { color:#72869b; }
+#yuyuan-preset-editor :is(.ype-prompt-row small,.ype-draft-row small) { color:#72869b; }
+#yuyuan-regex-groups .yrg-panel { width:min(820px,100%); height:min(700px,100%); }
+#yuyuan-update-popup .yuyuan-update-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+#yuyuan-update-popup .yuyuan-update-actions button { display:block; width:100%; min-width:0; white-space:normal; }
+#yuyuan-update-popup .yuyuan-update-now { color:#fff; background:#5d91c9; }
+#yuyuan-regex-groups[data-yuyuan-compact="true"] .yrg-import-review { padding:10px; }
+#yuyuan-regex-groups[data-yuyuan-compact="true"] .yrg-import-review header { margin-bottom:6px; }
+#yuyuan-regex-groups[data-yuyuan-compact="true"] .yrg-import-destination { padding:5px 8px; }
+#yuyuan-regex-groups[data-yuyuan-compact="true"] .yrg-import-review-tools { flex-direction:row; align-items:center; margin-top:6px; gap:6px; }
+#yuyuan-regex-groups[data-yuyuan-compact="true"] .yrg-import-review footer { margin-top:8px; }
+@media (max-width:700px), (pointer:coarse) {
+    /* Preserve Safari's no-focus-zoom threshold. Other text is now close in size. */
+    #yuyuan-preset-editor :is(input,select,textarea), #yuyuan-regex-groups :is(input,select,textarea) { font-size:16px !important; }
+}
+/* Local icon glyphs avoid depending on the host's Font Awesome stylesheet. */
+#yuyuan-regex-groups :is(.fa-solid,.fa-regular) { display:inline-block; font-style:normal; font-family:system-ui,sans-serif; line-height:1; text-align:center; }
+#yuyuan-regex-groups .fa-xmark::before { content:'×'; }
+#yuyuan-regex-groups .fa-plus::before { content:'+'; }
+#yuyuan-regex-groups .fa-pen-to-square::before { content:'✎'; }
+#yuyuan-regex-groups .fa-trash-can::before { content:'×'; }
+#yuyuan-regex-groups .fa-magnifying-glass::before { content:'⌕'; }
+#yuyuan-regex-groups :is(.fa-folder-open,.fa-folder-tree)::before { content:'▤'; }
+#yuyuan-regex-groups .fa-chevron-right::before { content:'›'; }
+#yuyuan-regex-groups .fa-toggle-on::before { content:'●'; }
+#yuyuan-regex-groups .fa-toggle-off::before { content:'○'; }
+#yuyuan-regex-groups .fa-circle-notch::before { content:'◌'; }
+#yuyuan-regex-groups .fa-spin { animation:yuyuanIconSpin 1s linear infinite; }
+@keyframes yuyuanIconSpin { to { transform:rotate(360deg); } }
+
+/* Keep inputs unscaled so Safari does not zoom and pan the page on focus. */
+@media (max-width:700px), (pointer:coarse) {
+    #yuyuan-preset-editor :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea),
+    #yuyuan-regex-groups :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) {
+        zoom:1; width:100%; min-height:40px;
+    }
+    #yuyuan-regex-groups .yrg-search input { min-height:0; flex:1; }
+}
+:is(#yuyuan-preset-editor,#yuyuan-regex-groups)[data-yuyuan-keyboard="true"] {
+    display:block; overflow:auto; overscroll-behavior:contain; scroll-behavior:auto;
+}
+:is(#yuyuan-preset-editor,#yuyuan-regex-groups)[data-yuyuan-keyboard="true"] > :is(.ype-card,.yrg-panel) {
+    height:var(--yuyuan-keyboard-card-height); max-height:none; margin-inline:auto;
+}
+#yuyuan-regex-groups[data-yuyuan-keyboard="true"] .yrg-panel > :not(.yrg-dialog-host):not(.yrg-busy) { flex-shrink:initial; }
+#yuyuan-regex-groups .yrg-theme-button { width:36px; min-width:36px; height:36px; padding:8px; }
+#yuyuan-regex-groups .yrg-theme-button svg { width:17px; height:17px; flex:none; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+
+/* Vertical panes must never expose horizontal overscroll space. */
+#yuyuan-preset-editor, #yuyuan-preset-editor :is(.ype-body,.ype-destination,.ype-prompt-list,.ype-draft-list) { overflow-x:hidden; overscroll-behavior-x:none; min-width:0; }
+#yuyuan-preset-editor :is(input:not([type="checkbox"]):not([type="radio"]),select,textarea) { min-width:0; max-width:100%; }
+
+/* Keep navigation visible above the keyboard; scroll the form, not the card. */
+#yuyuan-preset-editor[data-yuyuan-editing="true"] { display:block; overflow-y:auto; }
+#yuyuan-preset-editor[data-yuyuan-editing="true"] > .ype-card { height:var(--yuyuan-keyboard-card-height); max-height:none; margin-inline:auto; margin-top:var(--yuyuan-focus-card-gap,0px); }
+#yuyuan-preset-editor:has(> .ype-expand-editor:not([hidden])) { overflow:hidden; }
+#yuyuan-preset-editor[data-yuyuan-keyboard="true"] .ype-body { overflow-y:auto; }
+#yuyuan-preset-editor .ype-source[data-ype-page="create"] { overflow-y:auto; }
+#yuyuan-preset-editor .ype-expand-editor { overflow:hidden; padding:calc(12px + env(safe-area-inset-top,0px)) calc(12px + env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) calc(12px + env(safe-area-inset-left,0px)); }
+#yuyuan-preset-editor .ype-expand-editor > section { width:min(720px,100%); height:min(590px,100%); }
+#yuyuan-preset-editor .ype-expand-editor textarea[data-ype-expand-textarea] { width:auto; max-width:none; min-width:0; min-height:0; margin:12px; overflow:auto; white-space:pre-wrap; overflow-wrap:anywhere; }
+#yuyuan-preset-editor .ype-picker-menu { overscroll-behavior:contain; touch-action:pan-y; -webkit-overflow-scrolling:touch; }
+@media (max-width:700px) {
+    #yuyuan-preset-editor .ype-source:has(.ype-picker.is-open) { min-height:620px; flex-basis:620px; }
+    #yuyuan-preset-editor .ype-source .ype-picker-menu { position:static !important; transform:none !important; width:100% !important; max-height:220px !important; margin-top:6px; }
+}

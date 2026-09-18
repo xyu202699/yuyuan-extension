@@ -1,0 +1,29 @@
+.yuyuan-world-entry-undo {
+    position: relative;
+    flex: 0 0 auto;
+}
+
+.yuyuan-world-entry-undo:disabled {
+    opacity: .35;
+    cursor: default;
+    filter: grayscale(1);
+}
+
+.yuyuan-world-entry-undo:not(:disabled)::after {
+    content: attr(data-undo-count);
+    position: absolute;
+    right: -4px;
+    top: -5px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 3px;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: #5b91ca;
+    border: 1px solid rgba(255, 255, 255, .8);
+    border-radius: 999px;
+    font-size: 9px;
+    line-height: 1;
+    box-sizing: border-box;
+}

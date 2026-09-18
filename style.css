@@ -1,0 +1,104 @@
+/*
+ * Extension shell styles. The phone UI itself is provided by the separately hosted core.
+ * Shared static styles will move here during the modularization phase.
+ */
+#yuyuan-extension-settings .inline-drawer-content { padding:12px 10px 16px; }
+#yuyuan-extension-settings .yuyuan-ext-topbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin:0 1px 9px; }
+#yuyuan-extension-settings .yuyuan-ext-meta { display:flex; align-items:baseline; gap:8px; min-width:0; color:var(--SmartThemeBodyColor); }
+#yuyuan-extension-settings .yuyuan-ext-meta b { font-size:14px; font-weight:650; }
+#yuyuan-extension-settings .yuyuan-ext-meta span { color:color-mix(in srgb,var(--SmartThemeBodyColor) 55%,transparent); font-size:11px; }
+#yuyuan-extension-settings .yuyuan-ext-update-button { display:flex; align-items:center; justify-content:center; gap:6px; min-height:32px; padding:0 11px; border:1px solid color-mix(in srgb,#70a4d8 32%,var(--SmartThemeBorderColor)); border-radius:9px; background:color-mix(in srgb,#edf6ff 72%,var(--SmartThemeBlurTintColor)); color:color-mix(in srgb,#477db3 78%,var(--SmartThemeBodyColor)); box-shadow:none; cursor:pointer; font:inherit; font-size:12px; }
+#yuyuan-extension-settings .yuyuan-ext-update-button svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+#yuyuan-extension-settings .yuyuan-ext-update-button.is-checking svg { animation:yuyuanExtSpin .8s linear infinite; }
+#yuyuan-extension-settings .yuyuan-ext-update-button:disabled { cursor:wait; opacity:.6; }
+@keyframes yuyuanExtSpin { to { transform:rotate(360deg); } }
+#yuyuan-extension-settings .yuyuan-ext-status { margin:0 1px 12px; padding:8px 10px; border:1px solid color-mix(in srgb,var(--SmartThemeBorderColor) 58%,transparent); border-radius:9px; background:color-mix(in srgb,var(--SmartThemeBlurTintColor) 72%,transparent); color:color-mix(in srgb,var(--SmartThemeBodyColor) 70%,transparent); font-size:12px; }
+#yuyuan-extension-settings .yuyuan-ext-status[data-tone="ok"] { color:#559b6c; }
+#yuyuan-extension-settings .yuyuan-ext-status[data-tone="warn"] { color:#bd8d35; }
+#yuyuan-extension-settings .yuyuan-ext-status[data-tone="error"] { color:#c45f68; }
+#yuyuan-extension-settings .yuyuan-ext-modules { display:grid; gap:8px; }
+#yuyuan-extension-settings .yuyuan-ext-module { overflow:hidden; margin:0; padding:0; border:1px solid color-mix(in srgb,#83acd4 25%,var(--SmartThemeBorderColor)); border-radius:14px; background:color-mix(in srgb,#f8fbff 82%,var(--SmartThemeBlurTintColor)); box-shadow:0 5px 16px rgba(53,85,118,.045); transition:border-color .16s ease,box-shadow .16s ease; }
+#yuyuan-extension-settings .yuyuan-ext-module[open] { border-color:color-mix(in srgb,#72a5d8 43%,var(--SmartThemeBorderColor)); box-shadow:0 8px 22px rgba(53,85,118,.075); }
+#yuyuan-extension-settings .yuyuan-ext-module-summary { display:flex; align-items:center; gap:9px; min-height:58px; padding:9px 12px; box-sizing:border-box; cursor:pointer; list-style:none; user-select:none; }
+#yuyuan-extension-settings .yuyuan-ext-module-summary::-webkit-details-marker { display:none; }
+#yuyuan-extension-settings .yuyuan-ext-module-summary::marker { display:none; content:""; }
+#yuyuan-extension-settings .yuyuan-ext-module-copy { display:flex; flex:1; min-width:0; flex-direction:column; gap:1px; }
+#yuyuan-extension-settings .yuyuan-ext-module-copy b { overflow:hidden; color:var(--SmartThemeBodyColor); font-size:14px; font-weight:650; text-overflow:ellipsis; white-space:nowrap; }
+#yuyuan-extension-settings .yuyuan-ext-module-copy small { overflow:hidden; color:color-mix(in srgb,var(--SmartThemeBodyColor) 54%,transparent); font-size:10.5px; line-height:1.35; text-overflow:ellipsis; white-space:nowrap; }
+#yuyuan-extension-settings .yuyuan-ext-module-state { flex:0 0 auto; padding:3px 7px; border-radius:999px; background:color-mix(in srgb,#e1f1e8 76%,var(--SmartThemeBlurTintColor)); color:#57906d; font-size:10px; line-height:1.4; white-space:nowrap; }
+#yuyuan-extension-settings .yuyuan-ext-module-state[data-enabled="false"] { background:color-mix(in srgb,#edf0f4 76%,var(--SmartThemeBlurTintColor)); color:color-mix(in srgb,var(--SmartThemeBodyColor) 46%,transparent); }
+#yuyuan-extension-settings .yuyuan-ext-module-chevron { flex:0 0 auto; color:color-mix(in srgb,var(--SmartThemeBodyColor) 42%,transparent); font-size:10px; transition:transform .18s ease; }
+#yuyuan-extension-settings .yuyuan-ext-module[open] .yuyuan-ext-module-chevron { transform:rotate(180deg); }
+#yuyuan-extension-settings .yuyuan-ext-module-body { padding:0 12px 12px; border-top:1px solid color-mix(in srgb,var(--SmartThemeBorderColor) 45%,transparent); }
+#yuyuan-extension-settings .yuyuan-ext-module-body > .yuyuan-ext-setting-list { margin-top:10px; }
+#yuyuan-extension-settings .yuyuan-ext-module-icon { display:grid; flex:0 0 30px; width:30px; height:30px; place-items:center; border-radius:9px; background:color-mix(in srgb,#dcecff 70%,var(--SmartThemeBlurTintColor)); color:#5f8fbe; font-size:13px; }
+#yuyuan-extension-settings .yuyuan-ext-setting-list { overflow:hidden; border:1px solid color-mix(in srgb,var(--SmartThemeBorderColor) 60%,transparent); border-radius:11px; background:color-mix(in srgb,var(--SmartThemeBlurTintColor) 84%,transparent); }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row { display:flex; align-items:center; gap:12px; min-height:48px; padding:7px 10px; box-sizing:border-box; cursor:pointer; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row + .yuyuan-ext-toggle-row { border-top:1px solid color-mix(in srgb,var(--SmartThemeBorderColor) 54%,transparent); }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row > span { display:flex; flex:1; min-width:0; flex-direction:column; gap:2px; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row b { font-size:12.5px; font-weight:600; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row small { opacity:.58; font-size:10.5px; line-height:1.35; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row input { position:absolute; opacity:0; pointer-events:none; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row i { position:relative; flex:0 0 auto; width:36px; height:20px; border-radius:999px; background:rgba(145,152,165,.42); box-shadow:inset 0 0 0 1px rgba(255,255,255,.12); transition:background .16s ease; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row i::after { content:""; position:absolute; left:2px; top:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.22); transition:transform .16s ease; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row input:checked + i { background:#6d9ed0; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row input:checked + i::after { transform:translateX(16px); }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row input:focus-visible + i { outline:2px solid #89b8ed; outline-offset:2px; }
+#yuyuan-extension-settings .yuyuan-ext-toggle-row input:disabled + i { opacity:.42; }
+#yuyuan-extension-settings .menu_button { width:100%; margin-top:7px; }
+#yuyuan-extension-settings .yuyuan-ext-primary { min-height:36px; border:1px solid color-mix(in srgb,#79a5d0 34%,var(--SmartThemeBorderColor)); border-radius:9px; background:color-mix(in srgb,#e6f1fd 60%,var(--SmartThemeBlurTintColor)); color:color-mix(in srgb,#4c7ead 80%,var(--SmartThemeBodyColor)); box-shadow:none; }
+#yuyuan-extension-settings .yuyuan-ext-primary:disabled { cursor:not-allowed; opacity:.42; }
+#yuyuan-extension-settings .yuyuan-ext-split-actions { display:grid; grid-template-columns:1.25fr .75fr; gap:7px; }
+#yuyuan-extension-settings .yuyuan-ext-split-actions .menu_button { min-width:0; }
+#yuyuan-extension-settings .yuyuan-ext-more { margin-top:7px; color:color-mix(in srgb,var(--SmartThemeBodyColor) 58%,transparent); font-size:11px; }
+#yuyuan-extension-settings .yuyuan-ext-more summary { cursor:pointer; padding:3px 2px; }
+#yuyuan-extension-settings .yuyuan-ext-more > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:5px; }
+#yuyuan-extension-settings .yuyuan-ext-more .menu_button { min-width:0; padding:5px; font-size:10.5px; }
+#yuyuan-extension-settings .yuyuan-ext-module.is-disabled .yuyuan-ext-module-icon,
+#yuyuan-extension-settings .yuyuan-ext-module.is-disabled .yuyuan-ext-module-copy { opacity:.58; }
+@media (max-width:520px) {
+    #yuyuan-extension-settings .inline-drawer-content { padding-inline:8px; }
+    #yuyuan-extension-settings .yuyuan-ext-module-summary { padding-inline:10px; }
+    #yuyuan-extension-settings .yuyuan-ext-module-body { padding-inline:10px; }
+    #yuyuan-extension-settings .yuyuan-ext-module-state { font-size:9.5px; }
+}
+#yuyuan_wand_container #yuyuanWandMenuItem,
+#yuyuan_wand_container #yuyuanRegexWandMenuItem { cursor:pointer; }
+#yuyuan_wand_container .yuyuan-regex-menu-icon { display:grid; place-items:center; }
+#yuyuan_wand_container .yuyuan-regex-menu-icon svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+#yuyuan-extension-quick-bar { width:100%; box-sizing:border-box; flex-wrap:wrap; padding:3px 0; }
+#yuyuan-extension-quick-button { display:inline-flex; align-items:center; justify-content:center; min-width:88px; min-height:30px; padding:4px 11px; box-sizing:border-box; white-space:nowrap; cursor:pointer; }
+#yuyuan-extension-quick-button:focus-visible { outline:2px solid #76a8dc; outline-offset:2px; }
+#yuyuan-safe-mode { position:fixed; inset:0; z-index:2147483646; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(8,15,28,.72); backdrop-filter:blur(12px); }
+#yuyuan-safe-mode .yuyuan-safe-card { width:min(440px,calc(100vw - 36px)); max-height:calc(100vh - 36px); overflow:auto; box-sizing:border-box; padding:24px; border:1px solid rgba(164,198,235,.35); border-radius:18px; background:linear-gradient(145deg,#13233d,#0c172b); box-shadow:0 24px 70px rgba(0,0,0,.45); color:#edf5ff; }
+#yuyuan-safe-mode .yuyuan-safe-kicker { color:#80b9ef; font-size:11px; letter-spacing:.16em; font-weight:700; }
+#yuyuan-safe-mode h2 { margin:7px 0 8px; font-size:22px; }
+#yuyuan-safe-mode p { margin:0 0 16px; color:#b8c7db; line-height:1.65; font-size:13px; }
+#yuyuan-safe-mode .yuyuan-safe-actions { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#yuyuan-safe-mode .menu_button { width:100%; min-height:38px; margin:0; border:1px solid rgba(170,201,235,.24); border-radius:10px; background:#172b48; color:#eaf4ff; }
+#yuyuan-safe-mode .menu_button.primary { background:#377fc0; border-color:#5c9bd1; }
+#yuyuan-safe-mode .menu_button.quiet { background:transparent; color:#aebdd0; }
+#yuyuan-safe-mode pre { max-height:170px; overflow:auto; margin:14px 0 0; padding:11px; border-radius:10px; background:rgba(0,0,0,.22); color:#9eb5cf; white-space:pre-wrap; word-break:break-all; font:11px/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; }
+
+#yuyuan-update-popup { position:fixed; inset:0; z-index:2147483647; display:flex; align-items:center; justify-content:center; padding:max(20px,env(safe-area-inset-top)) 20px max(20px,env(safe-area-inset-bottom)); box-sizing:border-box; background:rgba(29,39,52,.28); backdrop-filter:blur(6px); }
+#yuyuan-update-popup .yuyuan-update-card { position:relative; flex:0 1 420px; width:100%; min-width:0; min-height:0; max-width:100%; max-height:100%; margin:0; box-sizing:border-box; overflow:auto; overscroll-behavior:contain; padding:28px 28px 22px; border:1px solid #e3eaf2; border-radius:16px; background:#fff; box-shadow:0 22px 60px rgba(31,49,72,.18); color:#273546; }
+#yuyuan-update-popup .yuyuan-update-card::before { content:""; position:absolute; inset:0 0 auto; height:4px; background:#5d91c9; }
+#yuyuan-update-popup h2 { margin:0 0 7px; color:#223247; font-size:21px; line-height:1.3; }
+#yuyuan-update-popup .yuyuan-update-copy { margin:0; color:#7a899a; font-size:13px; line-height:1.6; }
+#yuyuan-update-popup .yuyuan-update-version { display:flex; align-items:center; gap:12px; margin:20px 0 2px; padding:13px 15px; border:1px solid #e1e9f2; border-radius:10px; background:#f7faff; font-size:13px; }
+#yuyuan-update-popup .yuyuan-update-version span { color:#8492a2; }
+#yuyuan-update-popup .yuyuan-update-version i { position:relative; width:26px; height:1px; background:#9bb2ca; }
+#yuyuan-update-popup .yuyuan-update-version i::after { content:""; position:absolute; right:0; top:-3px; width:6px; height:6px; border-top:1px solid #9bb2ca; border-right:1px solid #9bb2ca; transform:rotate(45deg); }
+#yuyuan-update-popup .yuyuan-update-version strong { color:#3e6f9f; font-weight:650; }
+#yuyuan-update-popup .yuyuan-update-state { min-height:18px; margin:8px 1px 12px; color:#8291a1; font-size:12px; line-height:1.5; }
+#yuyuan-update-popup .yuyuan-update-state[data-tone="ok"] { color:#438768; }
+#yuyuan-update-popup .yuyuan-update-state[data-tone="error"] { color:#bf5864; }
+#yuyuan-update-popup .yuyuan-update-actions { display:flex; justify-content:flex-end; align-items:center; gap:9px; }
+#yuyuan-update-popup .yuyuan-update-button { width:auto; min-width:82px; min-height:36px; margin:0; padding:0 15px; border:1px solid transparent; border-radius:9px; background:transparent; color:#718195; box-shadow:none; }
+#yuyuan-update-popup .yuyuan-update-now { border-color:#5d91c9; background:#5d91c9; color:#fff; box-shadow:0 6px 16px rgba(75,129,184,.2); }
+#yuyuan-update-popup .yuyuan-update-later:hover { background:#f2f6fa; }
+#yuyuan-update-popup .yuyuan-update-button:disabled { cursor:wait; opacity:.58; }
+@media (max-width:520px), (max-height:620px) {
+    #yuyuan-update-popup { padding-inline:14px; }
+    #yuyuan-update-popup .yuyuan-update-card { padding:24px 20px 18px; }
+}

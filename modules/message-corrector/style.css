@@ -1,0 +1,29 @@
+#yuyuan-corrector-log { position:fixed; inset:0; z-index:2147483646; display:flex; align-items:center; justify-content:center; padding:18px; overflow:hidden; box-sizing:border-box; background:rgba(31,45,62,.28); backdrop-filter:blur(6px); font:13px/1.45 system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+#yuyuan-corrector-log .ycmc-card { display:flex; width:min(720px,100%); max-height:min(760px,100%); min-width:0; min-height:0; flex-direction:column; overflow:hidden; overflow-wrap:anywhere; border:1px solid #dce7f2; border-radius:17px; background:#f9fbfe; box-shadow:0 24px 70px rgba(31,49,72,.2); color:#26384d; }
+#yuyuan-corrector-log :is(header,footer) { flex-shrink:0; }
+#yuyuan-corrector-log header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:19px 20px 15px; border-bottom:1px solid #e1eaf3; background:#fff; }
+#yuyuan-corrector-log header small { color:#5c91c8; font-size:10px; font-weight:700; letter-spacing:.15em; }
+#yuyuan-corrector-log h2 { margin:4px 0 0; font-size:20px; line-height:1.25; }
+#yuyuan-corrector-log [data-ycmc-close] { width:38px; height:38px; flex:none; border:1px solid #d8e5f1; border-radius:10px; background:#f5f9fd; color:#5d7690; font:300 25px/1 sans-serif; cursor:pointer; }
+#yuyuan-corrector-log .ycmc-list { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; touch-action:pan-y; -webkit-overflow-scrolling:touch; padding:12px; }
+#yuyuan-corrector-log article { margin-bottom:10px; padding:13px; border:1px solid #dfE8f1; border-radius:12px; background:#fff; }
+#yuyuan-corrector-log .ycmc-log-head { display:flex; justify-content:space-between; gap:12px; margin-bottom:9px; font-size:12px; }
+#yuyuan-corrector-log .ycmc-log-head span { color:#8292a4; }
+#yuyuan-corrector-log .ycmc-change { display:grid; gap:5px; padding-top:9px; border-top:1px solid #edf1f5; }
+#yuyuan-corrector-log .ycmc-change + .ycmc-change { margin-top:9px; }
+#yuyuan-corrector-log em { color:#66819c; font-size:11px; font-style:normal; }
+#yuyuan-corrector-log del,
+#yuyuan-corrector-log ins { padding:7px 9px; border-radius:8px; word-break:break-word; text-decoration:none; font:11px/1.45 ui-monospace,SFMono-Regular,Consolas,monospace; }
+#yuyuan-corrector-log del { background:#fff1f2; color:#a55d65; }
+#yuyuan-corrector-log ins { background:#edf8f2; color:#4e7f65; }
+#yuyuan-corrector-log .ycmc-empty { display:grid; min-height:210px; place-items:center; color:#91a0b0; font-size:13px; }
+#yuyuan-corrector-log footer { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:12px 20px; border-top:1px solid #e1eaf3; background:#fff; color:#8a99a9; font-size:11px; }
+#yuyuan-corrector-log footer button { padding:7px 12px; border:1px solid #e3d5d8; border-radius:8px; background:#fff7f8; color:#b3656e; cursor:pointer; }
+#yuyuan-corrector-log footer button:disabled { cursor:default; opacity:.45; }
+@media (max-width:520px) {
+    #yuyuan-corrector-log { padding:8px; }
+    #yuyuan-corrector-log .ycmc-card { width:100%; border-radius:14px; }
+    #yuyuan-corrector-log header { padding:15px; }
+    #yuyuan-corrector-log .ycmc-log-head { flex-direction:column; gap:3px; }
+    #yuyuan-corrector-log footer { padding:10px 15px; }
+}

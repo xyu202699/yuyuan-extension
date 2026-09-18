@@ -1,0 +1,228 @@
+#yuyuan-preset-editor[hidden], #yuyuan-preset-editor [hidden] { display:none !important; }
+#yuyuan-preset-editor { position:fixed; z-index:2147483300; display:flex; align-items:center; justify-content:center; box-sizing:border-box; overflow:hidden; overscroll-behavior:contain; padding:max(18px,env(safe-area-inset-top)) 18px max(18px,env(safe-area-inset-bottom)); background:rgba(31,46,64,.32); backdrop-filter:blur(8px); color:#263b53; }
+#yuyuan-preset-editor * { box-sizing:border-box; }
+#yuyuan-preset-editor button, #yuyuan-preset-editor input, #yuyuan-preset-editor select, #yuyuan-preset-editor textarea { font:inherit; }
+#yuyuan-preset-editor .ype-card { position:relative; display:grid; grid-template-rows:auto auto minmax(0,1fr) auto; width:min(860px,100%); height:min(720px,100%); min-height:0; max-height:100%; overflow:hidden; border:1px solid #d6e3f0; border-radius:20px; background:#f8fbff; box-shadow:0 28px 90px rgba(31,55,82,.24); }
+#yuyuan-preset-editor .ype-header { position:relative; padding:20px 106px 14px 24px; border-bottom:1px solid #e0e9f2; background:#fff; }
+#yuyuan-preset-editor .ype-brand { display:block; margin-bottom:4px; color:#5288bf; font-size:10px; font-weight:750; letter-spacing:.18em; }
+#yuyuan-preset-editor h2 { margin:0; color:#23384f; font-size:22px; line-height:1.25; font-weight:700; }
+#yuyuan-preset-editor .ype-header-actions { position:absolute; top:17px; right:19px; display:flex; gap:7px; }
+#yuyuan-preset-editor .ype-icon-button { display:grid; width:34px; height:34px; place-items:center; padding:0; border:1px solid #d4e2ef; border-radius:10px; background:#f4f8fc; color:#66809a; cursor:pointer; font-size:22px; font-weight:300; line-height:1; }
+#yuyuan-preset-editor .ype-icon-button svg { width:17px; height:17px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+#yuyuan-preset-editor .ype-tabs { display:flex; gap:5px; padding:9px 20px; border-bottom:1px solid #dce7f1; background:#fff; }
+#yuyuan-preset-editor .ype-tabs button { min-height:36px; padding:0 17px; border:0; border-radius:9px; background:transparent; color:#71869c; cursor:pointer; font-size:13px; }
+#yuyuan-preset-editor .ype-tabs button.active { background:#e5f0fb; color:#356c9f; font-weight:650; }
+#yuyuan-preset-editor .ype-body { display:grid; grid-template-columns:minmax(0,1.55fr) minmax(250px,.9fr); min-height:0; overflow:hidden; }
+#yuyuan-preset-editor .ype-source { display:grid; grid-template-rows:auto auto auto minmax(0,1fr); min-width:0; min-height:0; gap:10px; padding:18px 20px; border-right:1px solid #dce7f1; background:#fbfdff; }
+#yuyuan-preset-editor .ype-source[data-ype-page="create"] { display:flex; flex-direction:column; overflow:hidden; }
+#yuyuan-preset-editor label, #yuyuan-preset-editor .ype-field { display:flex; flex-direction:column; gap:6px; min-width:0; color:#71869b; font-size:11px; }
+#yuyuan-preset-editor input, #yuyuan-preset-editor select, #yuyuan-preset-editor textarea { width:100%; border:1px solid #d4e2ef; border-radius:10px; outline:0; background:#fff; color:#2e455d; box-shadow:none; }
+#yuyuan-preset-editor input, #yuyuan-preset-editor select { min-height:39px; padding:7px 11px; }
+#yuyuan-preset-editor input:focus, #yuyuan-preset-editor select:focus, #yuyuan-preset-editor textarea:focus { border-color:#78a8d6; box-shadow:0 0 0 3px rgba(87,144,200,.1); }
+#yuyuan-preset-editor .ype-search input { padding-left:13px; background:#f4f8fc; }
+#yuyuan-preset-editor .ype-picker { position:relative; min-width:0; }
+#yuyuan-preset-editor .ype-picker > input { padding-right:37px; cursor:text; }
+#yuyuan-preset-editor .ype-picker-toggle { position:absolute; top:1px; right:1px; z-index:2; width:36px; height:37px; padding:0; border:0; border-left:1px solid #e3ebf3; border-radius:0 9px 9px 0; background:#f7faff; color:#6f89a3; cursor:pointer; font-size:18px; }
+#yuyuan-preset-editor .ype-picker-menu { position:absolute; top:calc(100% + 6px); right:0; left:0; z-index:20; max-height:240px; overflow:auto; padding:5px; border:1px solid #cdddeb; border-radius:11px; background:#fff; box-shadow:0 14px 34px rgba(35,62,89,.17); scrollbar-width:thin; }
+#yuyuan-preset-editor .ype-picker-option { display:block; width:100%; min-height:35px; padding:7px 9px; overflow:hidden; border:0; border-radius:7px; background:transparent; color:#3d556d; cursor:pointer; font-size:11.5px; text-align:left; text-overflow:ellipsis; white-space:nowrap; }
+#yuyuan-preset-editor .ype-picker-option:hover, #yuyuan-preset-editor .ype-picker-option.active { background:#eaf3fc; color:#356c9f; }
+#yuyuan-preset-editor .ype-picker-empty { padding:16px 8px; color:#94a6b8; font-size:11px; text-align:center; }
+#yuyuan-preset-editor .ype-source-meta { display:flex; align-items:center; justify-content:space-between; min-height:24px; color:#8a9caf; font-size:11px; }
+#yuyuan-preset-editor .ype-source-meta button { padding:3px 5px; border:0; background:transparent; color:#4f83b7; cursor:pointer; }
+#yuyuan-preset-editor .ype-prompt-list { min-height:0; overflow:auto; padding-right:4px; scrollbar-width:thin; scrollbar-color:#bfd2e5 transparent; }
+#yuyuan-preset-editor .ype-prompt-row { display:grid; grid-template-columns:20px minmax(0,1fr) auto; grid-template-rows:auto; align-items:center; gap:10px; min-height:58px; margin-bottom:7px; padding:9px 11px; border:1px solid #dde8f2; border-radius:12px; background:#fff; cursor:pointer; box-shadow:0 2px 8px rgba(49,82,114,.035); }
+#yuyuan-preset-editor .ype-prompt-row:hover { border-color:#abc9e4; }
+#yuyuan-preset-editor .ype-prompt-row input { position:absolute; width:1px; height:1px; opacity:0; }
+#yuyuan-preset-editor .ype-prompt-row > i { display:block; width:18px; height:18px; border:1px solid #9fb7ce; border-radius:5px; background:#fff; }
+#yuyuan-preset-editor .ype-prompt-row input:checked + i { border-color:#588ec4; background:#588ec4; box-shadow:inset 0 0 0 4px #fff; }
+#yuyuan-preset-editor .ype-prompt-row > span { display:flex; min-width:0; flex-direction:column; gap:4px; }
+#yuyuan-preset-editor .ype-prompt-row b { overflow:hidden; color:#30475f; font-size:12.5px; font-weight:650; text-overflow:ellipsis; white-space:nowrap; }
+#yuyuan-preset-editor .ype-prompt-row small { overflow:hidden; color:#91a2b4; font-size:10.5px; text-overflow:ellipsis; white-space:nowrap; }
+#yuyuan-preset-editor .ype-prompt-row em { padding:3px 7px; border-radius:999px; background:#eef5fb; color:#6686a6; font-size:9px; font-style:normal; text-transform:uppercase; }
+#yuyuan-preset-editor .ype-edit-row { width:100%; grid-template-columns:minmax(0,1fr) auto; text-align:left; font:inherit; }
+#yuyuan-preset-editor .ype-edit-row.active { border-color:#76a7d4; background:#edf5fd; box-shadow:0 0 0 2px rgba(87,139,192,.08); }
+#yuyuan-preset-editor .ype-empty { display:grid; min-height:150px; place-items:center; color:#96a8ba; font-size:12px; text-align:center; }
+#yuyuan-preset-editor .ype-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+#yuyuan-preset-editor .ype-content { min-height:0; }
+#yuyuan-preset-editor textarea { min-height:180px; height:100%; resize:none; padding:11px 12px; line-height:1.55; }
+#yuyuan-preset-editor .ype-create-form { display:flex; flex:0 0 auto; flex-direction:column; gap:9px; }
+#yuyuan-preset-editor .ype-create-form textarea { height:92px; min-height:92px; resize:vertical; }
+#yuyuan-preset-editor .ype-label-row { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+#yuyuan-preset-editor .ype-expand-button { display:grid; width:27px; height:25px; place-items:center; padding:0; border:1px solid #d4e2ef; border-radius:7px; background:#f7faff; color:#6686a5; cursor:pointer; }
+#yuyuan-preset-editor .ype-expand-button svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+#yuyuan-preset-editor .ype-save-draft { min-height:36px; border:1px solid #b9d2e8; border-radius:9px; background:#eaf3fc; color:#3e75a9; cursor:pointer; font-size:12px; font-weight:650; }
+#yuyuan-preset-editor .ype-draft-meta { flex:0 0 auto; margin-top:1px; border-top:1px solid #e1eaf3; padding-top:8px; }
+#yuyuan-preset-editor .ype-draft-list { min-height:76px; flex:1 1 auto; overflow:auto; padding-right:4px; scrollbar-width:thin; scrollbar-color:#bfd2e5 transparent; }
+#yuyuan-preset-editor .ype-draft-row { display:grid; grid-template-columns:20px minmax(0,1fr) 28px; align-items:center; gap:9px; min-height:54px; margin-bottom:7px; padding:8px 9px; border:1px solid #dde8f2; border-radius:11px; background:#fff; cursor:pointer; }
+#yuyuan-preset-editor .ype-draft-row input { position:absolute; width:1px; height:1px; opacity:0; }
+#yuyuan-preset-editor .ype-draft-row > i { display:block; width:18px; height:18px; border:1px solid #9fb7ce; border-radius:5px; background:#fff; }
+#yuyuan-preset-editor .ype-draft-row input:checked + i { border-color:#588ec4; background:#588ec4; box-shadow:inset 0 0 0 4px #fff; }
+#yuyuan-preset-editor .ype-draft-row > span { display:flex; min-width:0; flex-direction:column; gap:3px; }
+#yuyuan-preset-editor .ype-draft-row b, #yuyuan-preset-editor .ype-draft-row small { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#yuyuan-preset-editor .ype-draft-row b { color:#30475f; font-size:12px; }
+#yuyuan-preset-editor .ype-draft-row small { color:#91a2b4; font-size:10px; }
+#yuyuan-preset-editor .ype-draft-remove { display:grid; width:28px; height:28px; place-items:center; padding:0; border:0; border-radius:7px; background:#f5f8fb; color:#9a7080; cursor:pointer; font-size:18px; }
+#yuyuan-preset-editor .ype-draft-empty { min-height:76px; }
+#yuyuan-preset-editor .ype-destination { min-width:0; overflow:auto; padding:20px; background:#f5f9fd; }
+#yuyuan-preset-editor .ype-destination h3 { margin:0 0 16px; color:#3b536c; font-size:13px; font-weight:680; }
+#yuyuan-preset-editor .ype-destination label, #yuyuan-preset-editor .ype-destination .ype-field { margin-bottom:14px; }
+#yuyuan-preset-editor .ype-destination label small { min-height:14px; color:#98a9ba; font-size:9.5px; line-height:1.4; }
+#yuyuan-preset-editor .ype-edit-panel { display:flex; flex-direction:column; min-height:0; }
+#yuyuan-preset-editor .ype-edit-empty { display:grid; flex:1; min-height:180px; place-items:center; color:#96a8ba; font-size:12px; text-align:center; }
+#yuyuan-preset-editor .ype-edit-form { display:flex; min-height:0; flex:1; flex-direction:column; gap:10px; }
+#yuyuan-preset-editor .ype-edit-form .ype-content { flex:1; }
+#yuyuan-preset-editor .ype-edit-form textarea { min-height:150px; }
+#yuyuan-preset-editor .ype-delete-prompt { display:flex; align-items:center; justify-content:center; gap:7px; min-height:36px; margin-top:auto; border:1px solid #eccfd4; border-radius:9px; background:#fff8f9; color:#b7626e; cursor:pointer; font-size:11.5px; }
+#yuyuan-preset-editor .ype-delete-prompt svg { width:15px; height:15px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+#yuyuan-preset-editor fieldset { min-width:0; margin:4px 0 0; padding:0; border:0; }
+#yuyuan-preset-editor legend { margin-bottom:7px; color:#71869b; font-size:11px; }
+#yuyuan-preset-editor .ype-segments { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; max-width:260px; overflow:hidden; border:1px solid #d4e2ef; border-radius:10px; background:#fff; }
+#yuyuan-preset-editor .ype-segments[data-mode="create"] { grid-template-columns:repeat(2,minmax(0,1fr)); max-width:220px; }
+#yuyuan-preset-editor .ype-segments button { min-width:0; min-height:36px; padding:5px; border:0; border-right:1px solid #e2eaf2; background:transparent; color:#8092a4; cursor:pointer; font-size:10.5px; }
+#yuyuan-preset-editor .ype-segments button:last-child { border-right:0; }
+#yuyuan-preset-editor .ype-segments button.active { background:#578bc0; color:#fff; }
+#yuyuan-preset-editor .ype-footer { display:flex; align-items:center; justify-content:space-between; gap:14px; min-height:68px; padding:12px 20px; border-top:1px solid #dce7f1; background:#fff; }
+#yuyuan-preset-editor .ype-footer > span { overflow:hidden; color:#7e91a4; font-size:11px; text-overflow:ellipsis; white-space:nowrap; }
+#yuyuan-preset-editor .ype-footer > span[data-tone="error"] { color:#bf5d69; }
+#yuyuan-preset-editor .ype-footer > div { display:flex; gap:8px; }
+#yuyuan-preset-editor .ype-footer button { min-height:36px; padding:0 17px; border:1px solid #d4e2ef; border-radius:9px; cursor:pointer; }
+#yuyuan-preset-editor .ype-secondary { background:#f7faff; color:#71869a; }
+#yuyuan-preset-editor .ype-primary { border-color:#568bc1 !important; background:#568bc1; color:#fff; box-shadow:0 6px 16px rgba(65,119,177,.17); }
+#yuyuan-preset-editor .ype-busy { position:absolute; inset:0; z-index:5; display:flex; align-items:center; justify-content:center; gap:10px; background:rgba(248,251,255,.8); backdrop-filter:blur(3px); color:#4c6d8d; font-size:12px; }
+#yuyuan-preset-editor .ype-busy span { width:22px; height:22px; border:2px solid #cfdfed; border-top-color:#548bc2; border-radius:50%; animation:ypeSpin .75s linear infinite; }
+#yuyuan-preset-editor .ype-expand-editor { position:absolute; inset:0; z-index:8; display:grid; grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr); place-items:center; min-width:0; min-height:0; padding:18px; background:rgba(34,50,69,.38); backdrop-filter:blur(6px); }
+#yuyuan-preset-editor .ype-expand-editor > section { display:grid; grid-template-rows:auto minmax(0,1fr) auto; width:min(720px,100%); height:min(590px,100%); overflow:hidden; border:1px solid #d5e3ef; border-radius:16px; background:#fbfdff; box-shadow:0 24px 70px rgba(31,55,82,.28); }
+#yuyuan-preset-editor .ype-expand-editor header { display:flex; align-items:center; justify-content:space-between; padding:14px 16px; border-bottom:1px solid #dce7f1; background:#fff; }
+#yuyuan-preset-editor .ype-expand-editor h3 { margin:0; color:#30485f; font-size:15px; }
+#yuyuan-preset-editor .ype-expand-editor header button { display:grid; width:30px; height:30px; place-items:center; padding:0; border:1px solid #d4e2ef; border-radius:8px; background:#f5f9fd; color:#71869a; cursor:pointer; font-size:20px; }
+#yuyuan-preset-editor .ype-expand-editor textarea { width:auto; min-height:0; height:auto; margin:14px 16px; resize:none; }
+#yuyuan-preset-editor .ype-expand-editor footer { display:flex; justify-content:flex-end; gap:8px; padding:11px 16px; border-top:1px solid #dce7f1; background:#fff; }
+#yuyuan-preset-editor .ype-expand-editor footer button { min-height:36px; padding:0 17px; border:1px solid #d4e2ef; border-radius:9px; cursor:pointer; }
+#yuyuan-preset-editor[data-theme="dark"] { background:rgba(4,9,17,.64); color:#d8e4f0; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-card { border-color:#2d4056; background:#0e1828; box-shadow:0 30px 90px rgba(0,0,0,.5); }
+#yuyuan-preset-editor[data-theme="dark"] .ype-header,
+#yuyuan-preset-editor[data-theme="dark"] .ype-tabs,
+#yuyuan-preset-editor[data-theme="dark"] .ype-footer { border-color:#2a3a4e; background:#121f32; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-source { border-color:#2a3a4e; background:#101b2b; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-destination { background:#0d1726; }
+#yuyuan-preset-editor[data-theme="dark"] h2 { color:#edf4fb; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-brand { color:#79aee0; }
+#yuyuan-preset-editor[data-theme="dark"] label,
+#yuyuan-preset-editor[data-theme="dark"] .ype-field,
+#yuyuan-preset-editor[data-theme="dark"] legend,
+#yuyuan-preset-editor[data-theme="dark"] .ype-source-meta { color:#9eb1c5; }
+#yuyuan-preset-editor[data-theme="dark"] input,
+#yuyuan-preset-editor[data-theme="dark"] select,
+#yuyuan-preset-editor[data-theme="dark"] textarea,
+#yuyuan-preset-editor[data-theme="dark"] .ype-segments { border-color:#344960; background:#162438; color:#e6eef7; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-search input { background:#142236; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-icon-button,
+#yuyuan-preset-editor[data-theme="dark"] .ype-picker-toggle { border-color:#344960; background:#18283c; color:#9bb2c9; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-picker-menu { border-color:#344960; background:#152337; box-shadow:0 16px 36px rgba(0,0,0,.38); }
+#yuyuan-preset-editor[data-theme="dark"] .ype-picker-option { color:#cfdeeb; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-picker-option:hover,
+#yuyuan-preset-editor[data-theme="dark"] .ype-picker-option.active { background:#203a56; color:#93c4f0; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-prompt-row,
+#yuyuan-preset-editor[data-theme="dark"] .ype-draft-row { border-color:#2d4055; background:#142236; box-shadow:none; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-edit-row.active { border-color:#588fbe; background:#1b3047; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-prompt-row b,
+#yuyuan-preset-editor[data-theme="dark"] .ype-draft-row b,
+#yuyuan-preset-editor[data-theme="dark"] .ype-destination h3 { color:#d9e6f2; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-prompt-row small,
+#yuyuan-preset-editor[data-theme="dark"] .ype-draft-row small,
+#yuyuan-preset-editor[data-theme="dark"] .ype-empty,
+#yuyuan-preset-editor[data-theme="dark"] .ype-footer > span { color:#8298ae; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-prompt-row em { background:#1f354d; color:#8fb4d8; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-save-draft { border-color:#3b6185; background:#203d5a; color:#b9d8f4; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-draft-meta { border-color:#2a3a4e; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-draft-remove,
+#yuyuan-preset-editor[data-theme="dark"] .ype-secondary,
+#yuyuan-preset-editor[data-theme="dark"] .ype-expand-button { border-color:#344960; background:#18283c; color:#aabdd0; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-segments button { border-color:#344960; color:#9fb1c4; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-segments button.active,
+#yuyuan-preset-editor[data-theme="dark"] .ype-primary { background:#4f86ba; color:#fff; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-busy { background:rgba(13,23,38,.84); color:#b9d1e8; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-delete-prompt { border-color:#623b47; background:#2a1d2a; color:#e09aa5; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-expand-editor { background:rgba(3,8,15,.62); }
+#yuyuan-preset-editor[data-theme="dark"] .ype-expand-editor > section,
+#yuyuan-preset-editor[data-theme="dark"] .ype-expand-editor header,
+#yuyuan-preset-editor[data-theme="dark"] .ype-expand-editor footer { border-color:#2d4056; background:#101b2b; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-expand-editor h3 { color:#dce8f3; }
+#yuyuan-preset-editor[data-theme="dark"] .ype-expand-editor header button { border-color:#344960; background:#18283c; color:#aabdd0; }
+@keyframes ypeSpin { to { transform:rotate(360deg); } }
+.yuyuan-preset-native-button { display:inline-grid !important; flex:0 0 auto; width:36px !important; min-width:36px !important; height:36px; padding:7px !important; place-items:center; }
+.yuyuan-preset-native-button svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; pointer-events:none; }
+
+@media (max-width:700px) {
+    #yuyuan-preset-editor { align-items:center; padding:max(12px,env(safe-area-inset-top)) 10px max(12px,env(safe-area-inset-bottom)); }
+    #yuyuan-preset-editor .ype-card { width:100%; max-width:100%; min-width:0; height:min(760px,100%); min-height:0; max-height:100%; border-radius:16px; }
+    #yuyuan-preset-editor .ype-header { padding:15px 94px 11px 16px; }
+    #yuyuan-preset-editor .ype-header-actions { top:11px; right:12px; }
+    #yuyuan-preset-editor h2 { font-size:19px; }
+    #yuyuan-preset-editor .ype-tabs { padding:7px 12px; }
+    #yuyuan-preset-editor .ype-tabs button { flex:1; padding:0 8px; }
+    #yuyuan-preset-editor .ype-body { display:flex; flex-direction:column; overflow:auto; }
+    #yuyuan-preset-editor .ype-source { flex:1 0 360px; min-height:360px; padding:13px 12px; border-right:0; border-bottom:1px solid #dce7f1; overflow:hidden; }
+    #yuyuan-preset-editor .ype-source[data-ype-page="create"] { min-height:520px; flex-basis:520px; overflow:hidden; }
+    #yuyuan-preset-editor .ype-source[data-ype-page="edit"] { min-height:330px; flex-basis:330px; }
+    #yuyuan-preset-editor .ype-destination { flex:0 0 auto; overflow:visible; padding:15px 12px 18px; }
+    #yuyuan-preset-editor .ype-edit-panel { min-height:460px; }
+    #yuyuan-preset-editor .ype-destination h3 { margin-bottom:12px; }
+    #yuyuan-preset-editor .ype-destination label, #yuyuan-preset-editor .ype-destination .ype-field { margin-bottom:11px; }
+    #yuyuan-preset-editor .ype-footer { min-height:60px; padding:10px 12px; }
+    #yuyuan-preset-editor .ype-footer > span { display:none; }
+    #yuyuan-preset-editor .ype-footer > div { width:100%; min-width:0; }
+    #yuyuan-preset-editor .ype-footer button { min-width:0; flex:1; padding:0 10px; }
+    #yuyuan-preset-editor .ype-expand-editor { padding:9px; }
+    #yuyuan-preset-editor .ype-expand-editor > section { width:100%; height:100%; border-radius:13px; }
+}
+
+@media (max-width:430px) {
+    #yuyuan-preset-editor .ype-form-grid { grid-template-columns:1fr 1fr; }
+    #yuyuan-preset-editor .ype-segments button { font-size:10px; }
+}
+
+#yuyuan-preset-editor .ype-card,
+#yuyuan-preset-editor .ype-expand-editor > section { grid-template-columns:minmax(0,1fr); min-width:0; min-height:0; max-width:100%; max-height:100%; margin:0; }
+@media (max-width:700px), (pointer:coarse) {
+    #yuyuan-preset-editor input:not([type="checkbox"]):not([type="radio"]),
+    #yuyuan-preset-editor select, #yuyuan-preset-editor textarea { font-size:16px; }
+}
+
+/* Focus targets belong to their row, not the top of the positioned card. */
+#yuyuan-preset-editor .ype-prompt-row, #yuyuan-preset-editor .ype-draft-row { position:relative; }
+#yuyuan-preset-editor .ype-prompt-row input, #yuyuan-preset-editor .ype-draft-row input { top:50%; left:12px; min-height:0; margin:0; padding:0; border:0; }
+#yuyuan-preset-editor .ype-body, #yuyuan-preset-editor .ype-prompt-list, #yuyuan-preset-editor .ype-draft-list, #yuyuan-preset-editor .ype-picker-menu, #yuyuan-preset-editor .ype-destination { overflow-anchor:none; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; scroll-behavior:auto; }
+
+/* Keep typography independent of the host's theme and Safari text inflation. */
+#yuyuan-preset-editor { --yuyuan-overlay-gap:18px; font:13px/1.45 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; -webkit-text-size-adjust:100%; text-size-adjust:100%; }
+#yuyuan-preset-editor .ype-card { width:min(780px,100%); height:min(640px,100%); }
+#yuyuan-preset-editor h2 { font-size:18px; }
+#yuyuan-preset-editor .ype-header { padding:15px 100px 12px 18px; }
+#yuyuan-preset-editor .ype-header-actions { top:12px; right:14px; }
+#yuyuan-preset-editor label, #yuyuan-preset-editor .ype-field, #yuyuan-preset-editor legend { font-size:12px; }
+#yuyuan-preset-editor .ype-destination label small, #yuyuan-preset-editor .ype-prompt-row small, #yuyuan-preset-editor .ype-draft-row small { font-size:11px; line-height:1.4; }
+#yuyuan-preset-editor .ype-prompt-row b, #yuyuan-preset-editor .ype-draft-row b, #yuyuan-preset-editor .ype-picker-option { font-size:13px; }
+#yuyuan-preset-editor .ype-prompt-row em { font-size:10px; }
+#yuyuan-preset-editor .ype-footer button, #yuyuan-preset-editor .ype-expand-editor footer button { font-size:14px; }
+#yuyuan-preset-editor .ype-segments button { font-size:12px; }
+#yuyuan-preset-editor input:not([type="checkbox"]):not([type="radio"]), #yuyuan-preset-editor select, #yuyuan-preset-editor textarea { font-size:14px; line-height:1.45; }
+#yuyuan-preset-editor .ype-destination label, #yuyuan-preset-editor .ype-destination .ype-field { margin-bottom:10px; }
+@media (max-width:700px), (pointer:coarse) {
+    /* Safari needs 16px editable text to avoid zooming the page on focus. */
+    #yuyuan-preset-editor input:not([type="checkbox"]):not([type="radio"]), #yuyuan-preset-editor select, #yuyuan-preset-editor textarea { font-size:16px; }
+}
+@media (max-width:700px) {
+    #yuyuan-preset-editor .ype-card { width:min(420px,100%); height:min(680px,calc(100% - 16px)); }
+    #yuyuan-preset-editor h2 { font-size:17px; }
+    #yuyuan-preset-editor .ype-header { padding:12px 94px 10px 14px; }
+    #yuyuan-preset-editor .ype-header-actions { top:10px; right:12px; }
+    #yuyuan-preset-editor .ype-tabs { padding:6px 10px; }
+    #yuyuan-preset-editor .ype-tabs button { font-size:12px; padding-inline:5px; }
+    #yuyuan-preset-editor .ype-footer { min-height:56px; padding:9px 12px; }
+    #yuyuan-preset-editor .ype-destination { padding:12px; }
+    #yuyuan-preset-editor .ype-edit-form { gap:8px; }
+}
+@media (max-width:350px) {
+    #yuyuan-preset-editor { --yuyuan-overlay-gap:12px; }
+}

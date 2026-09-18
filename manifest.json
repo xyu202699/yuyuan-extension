@@ -1,0 +1,13 @@
+{
+  "display_name": "芋圆小屋♡°.•",
+  "loading_order": 50,
+  "requires": [],
+  "optional": [],
+  "dependencies": [],
+  "js": "index.js",
+  "css": "style.css",
+  "author": "小芋",
+  "version": "0.9.19",
+  "auto_update": false,
+  "homePage": "https://github.com/xyu202699/yuyuan-extension"
+}
