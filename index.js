@@ -1,5 +1,5 @@
 const MODULE_NAME = 'yuyuan-extension';
-const EXTENSION_VERSION = '0.9.20';
+const EXTENSION_VERSION = '0.9.21';
 const REMOTE_CORE_URL = 'https://yuyuan111.pages.dev/yuyuan.js';
 const REGEX_GROUPS_MODULE = 'modules/regex-groups/index.js';
 const PRESET_EDITOR_MODULE = 'modules/preset-editor/index.js';
@@ -397,8 +397,11 @@ function openPhone() {
     if (isSafeMode()) { showSafeMode(); return; }
     const api = root.__YUYUAN_API__;
     if (!api) throw new Error('扩展核心尚未就绪');
-    api.open();
-    paintStatus();
+    return Promise.resolve(api.open()).then(() => paintStatus()).catch(error => {
+        console.error(`[${MODULE_NAME}] failed to open phone`, error);
+        notify(`芋圆机打开失败：${error.message}；请在扩展设置中重新加载核心`, 'error');
+        paintStatus();
+    });
 }
 
 function removePhoneFloatingBall() {
@@ -631,6 +634,9 @@ async function openLegacyRemoteCore(root) {
 
 function installLegacyRemoteBridge(root) {
     if (root.__YUYUAN_API__) return false;
+    // A modern core that failed during boot must not be reported as ready.
+    if (root.__YUYUAN_RUNTIME__?.source === 'extension') return false;
+    if (!root.document.getElementById('xhs-float-btn') && !root.document.getElementById('xhs-fab')) return false;
     root.__YUYUAN_RUNTIME__ = { source: 'extension', version: 'remote-legacy', loadedAt: Date.now() };
     root.__YUYUAN_API__ = {
         open: () => openLegacyRemoteCore(root),
@@ -856,6 +862,50 @@ async function enterSafeMode() {
 function installNativeShims() {
     const root = getRootWindow();
     const context = () => root.SillyTavern?.getContext?.();
+    const helper = () => root.TavernHelper;
+    const apiBase = (value) => {
+        const text = String(value || '').trim().replace(/\/+$/, '');
+        let url;
+        try { url = new URL(text); } catch { throw new Error('API 地址无效，请填写完整的 http 或 https 地址'); }
+        if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error('API 地址格式不支持，请把密钥填写到 Key 栏');
+        return text;
+    };
+    const requestJson = async (path, body, timeout = 30000) => {
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), timeout);
+        try {
+            let headers = context()?.getRequestHeaders?.();
+            if (!headers) {
+                const csrf = await root.fetch('/csrf-token', { signal: controller.signal });
+                if (!csrf.ok) throw new Error('无法取得酒馆请求凭据，请刷新页面后重试');
+                const token = (await csrf.json()).token;
+                headers = { 'Content-Type': 'application/json', ...(token ? { 'X-CSRF-Token': token } : {}) };
+            }
+            const response = await root.fetch(path, { method: 'POST', headers, body: JSON.stringify(body), cache: 'no-store', signal: controller.signal });
+            if (!response.ok) throw new Error('接口请求失败（HTTP ' + response.status + '），请检查 API 地址、Key 和连接状态');
+            let json;
+            try { json = await response.json(); } catch { throw new Error('接口返回的不是 JSON，请检查 API 地址是否填成了网页地址'); }
+            if (!json || json.error) throw new Error('接口返回错误，请检查 API 地址、Key、模型权限或服务状态');
+            return json;
+        } catch (error) {
+            if (controller.signal.aborted) throw new Error('接口请求超时，请稍后重试');
+            throw error;
+        } finally { clearTimeout(timer); }
+    };
+    const modelNames = (value) => {
+        const list = Array.isArray(value) ? value : (value?.data ?? value?.models);
+        if (!Array.isArray(list)) throw new Error('模型列表格式不正确，请检查 API 地址');
+        return [...new Set(list.map(item => typeof item === 'string' ? item.trim() : String(item?.id || item?.name || '').trim()).filter(Boolean))].sort();
+    };
+    if (typeof root.getModelList !== 'function') {
+        root.getModelList = async (options = {}) => {
+            const apiurl = apiBase(options.apiurl);
+            if (typeof helper()?.getModelList === 'function') return modelNames(await helper().getModelList({ ...options, apiurl }));
+            return modelNames(await requestJson('/api/backends/chat-completions/status', {
+                chat_completion_source: 'openai', reverse_proxy: apiurl, proxy_password: options.key || '',
+            }));
+        };
+    }
     if (typeof root.getVariables !== 'function') {
         root.getVariables = (options = {}) => {
             const ctx = context();
@@ -892,7 +942,32 @@ function installNativeShims() {
     }
     if (typeof root.generateRaw !== 'function') {
         root.generateRaw = async (options = {}) => {
+            if (typeof helper()?.generateRaw === 'function') return await helper().generateRaw(options);
             const ctx = context();
+            if (options.custom_api) {
+                const custom = { ...options.custom_api };
+                if (custom.proxy_preset) {
+                    const proxies = ctx?.proxies || (await import('/scripts/openai.js')).proxies;
+                    const preset = proxies?.find(item => item.name === String(custom.proxy_preset).trim());
+                    if (!preset) throw new Error('找不到所选连接预设，请重新选择或填写 API 地址和 Key');
+                    custom.apiurl = preset.url;
+                    custom.key = preset.password || '';
+                }
+                const source = custom.source || 'openai';
+                if (!['openai', 'claude', 'makersuite', 'mistralai', 'deepseek', 'xai', 'moonshot'].includes(source)) throw new Error('当前副 API 类型需要酒馆助手支持，请启用酒馆助手或使用 OpenAI 兼容地址');
+                const model = String(custom.model || '').trim();
+                if (!model) throw new Error('请先在芋圆机的 API 设置中选择或填写模型');
+                const messages = options.ordered_prompts || options.prompt;
+                if (!Array.isArray(messages) || messages.some(item => !item || !['system','user','assistant'].includes(item.role))) throw new Error('生成消息格式不支持');
+                const body = { chat_completion_source: source, reverse_proxy: apiBase(custom.apiurl), proxy_password: custom.key || '',
+                    model, messages, stream: false, max_tokens: Number(custom.max_tokens) || Number(ctx?.chatCompletionSettings?.openai_max_tokens) || 4096 };
+                if (custom.temperature != null && Number.isFinite(Number(custom.temperature))) body.temperature = Number(custom.temperature);
+                const json = await requestJson('/api/backends/chat-completions/generate', body, 180000);
+                const content = json.choices?.[0]?.message?.content ?? json.choices?.[0]?.text ?? json.content;
+                const text = Array.isArray(content) ? content.filter(part => part?.type === 'text').map(part => part.text || '').join('') : content;
+                if (typeof text !== 'string' || !text.trim()) throw new Error('模型未返回文字，请检查模型或稍后重试');
+                return text;
+            }
             if (typeof ctx?.generateRaw !== 'function') throw new Error('当前版本酒馆没有提供 generateRaw');
             const nativeOptions = { ...options };
             if (Array.isArray(nativeOptions.ordered_prompts)) {
@@ -903,42 +978,63 @@ function installNativeShims() {
         };
     }
     if (typeof root.createChatMessages !== 'function') {
-        root.createChatMessages = async (messages = []) => {
+        root.createChatMessages = async (messages = [], options = {}) => {
+            if (typeof helper()?.createChatMessages === 'function') return await helper().createChatMessages(messages, options);
             const ctx = context();
             if (!ctx || !Array.isArray(ctx.chat)) throw new Error('当前聊天尚未就绪');
+            const position = options.insert_at ?? options.insert_before ?? 'end';
+            if (position !== 'end' && position !== ctx.chat.length) throw new Error('当前运行环境只支持在聊天末尾追加消息');
+            const events = ctx.eventTypes || ctx.event_types || {};
             for (const source of messages) {
                 const role = source.role || 'system';
                 const message = {
-                    name: source.name || (role === 'user' ? ctx.name1 : ctx.name2),
+                    name: source.name || (role === 'system' ? 'system' : role === 'user' ? ctx.name1 : ctx.name2),
                     is_user: role === 'user',
-                    is_system: role === 'system',
+                    is_system: !!source.is_hidden,
                     send_date: Date.now(),
                     mes: String(source.message ?? source.mes ?? ''),
-                    is_hidden: !!source.is_hidden,
-                    extra: clonePlain(source.data || source.extra || {}),
+                    extra: { ...(role === 'system' ? { type: 'narrator' } : {}), ...clonePlain(source.extra || {}) },
+                    ...(source.data ? { variables: [clonePlain(source.data)] } : {}),
                 };
+                const id = ctx.chat.length;
                 ctx.chat.push(message);
-                if (typeof ctx.addOneMessage === 'function') ctx.addOneMessage(message, { scroll: false });
+                if (options.refresh !== 'none' && typeof ctx.addOneMessage === 'function') ctx.addOneMessage(message, { scroll: false });
+                const sent = role === 'user' ? events.MESSAGE_SENT : events.MESSAGE_RECEIVED;
+                if (sent) await ctx.eventSource?.emit?.(sent, id, 'extension');
+                const rendered = role === 'user' ? events.USER_MESSAGE_RENDERED : events.CHARACTER_MESSAGE_RENDERED;
+                if (options.refresh !== 'none' && rendered) await ctx.eventSource?.emit?.(rendered, id);
             }
             await ctx.saveChat?.();
             return messages;
         };
     }
     if (typeof root.getCharWorldbookNames !== 'function') {
-        root.getCharWorldbookNames = async () => {
+        root.getCharWorldbookNames = async (name = 'current') => {
+            if (typeof helper()?.getCharWorldbookNames === 'function') return await helper().getCharWorldbookNames(name);
             const ctx = context();
-            const char = ctx?.characters?.[ctx.characterId];
+            const char = name === 'current' ? ctx?.characters?.[ctx.characterId] : ctx?.characters?.find(item => item.name === name);
+            if (!char) return { primary: '', additional: [] };
             const ext = char?.data?.extensions || char?.extensions || {};
             const primary = ext.world || ext.world_info || '';
-            const additional = Array.isArray(ext.extra_books) ? ext.extra_books : [];
-            return { primary, additional };
+            let world = ctx?.worldInfo || ctx?.world_info;
+            if (!world) {
+                try { world = (await import('/scripts/world-info.js')).getWorldInfoSettings().world_info; }
+                catch (error) { console.warn(`[${MODULE_NAME}] additional worldbook settings unavailable`, error); }
+            }
+            const filename = String(char.avatar || '').replace(/\.[^/.]+$/, '');
+            const additional = world?.charLore?.find(item => item.name === filename)?.extraBooks;
+            return { primary, additional: [...new Set(Array.isArray(additional) ? additional : Array.isArray(ext.extra_books) ? ext.extra_books : [])] };
         };
     }
     if (typeof root.getChatWorldbookName !== 'function') {
-        root.getChatWorldbookName = async () => context()?.chatMetadata?.world_info || '';
+        root.getChatWorldbookName = async (name = 'current') => {
+            if (typeof helper()?.getChatWorldbookName === 'function') return await helper().getChatWorldbookName(name);
+            return context()?.chatMetadata?.world_info || '';
+        };
     }
     if (typeof root.getWorldbook !== 'function') {
         root.getWorldbook = async (name) => {
+            if (typeof helper()?.getWorldbook === 'function') return await helper().getWorldbook(name);
             const ctx = context();
             if (!name || typeof ctx?.loadWorldInfo !== 'function') return [];
             const book = await ctx.loadWorldInfo(name);
@@ -1295,7 +1391,18 @@ function registerSettingsPanel() {
     return true;
 }
 
-async function loadCore(options = {}) {
+function loadCore(options = {}) {
+    const root = getRootWindow();
+    if (root.__YUYUAN_EXTENSION_START_PROMISE__) return root.__YUYUAN_EXTENSION_START_PROMISE__;
+    const task = Promise.resolve().then(() => performCoreLoad(options));
+    const pending = task.finally(() => {
+        if (root.__YUYUAN_EXTENSION_START_PROMISE__ === pending) delete root.__YUYUAN_EXTENSION_START_PROMISE__;
+    });
+    root.__YUYUAN_EXTENSION_START_PROMISE__ = pending;
+    return pending;
+}
+
+async function performCoreLoad(options = {}) {
     const root = getRootWindow();
     const prefs = publishUiPrefs();
     if (!prefs.phoneEnabled) {
@@ -1308,9 +1415,18 @@ async function loadCore(options = {}) {
         showSafeMode();
         return;
     }
+    const pending = root.__YUYUAN_EXTENSION_LOAD_PROMISE__;
+    if (pending) {
+        try { await pending; } catch (error) { if (!options.force) throw error; }
+        if (!options.force) return;
+    }
     if (options.force) await destroyRuntime();
     let existing = root.__YUYUAN_RUNTIME__;
-    if (existing?.source === 'extension') return;
+    if (existing?.source === 'extension') {
+        if (root.__YUYUAN_API__ && root.__YUYUAN_API__.status?.()?.alive !== false) return;
+        await destroyRuntime();
+        existing = null;
+    }
     if (existing?.source === 'script') {
         // Disabling a JS-Slash-Runner script leaves its DOM, timers and closures alive.
         // Use the new destroy API when available and the fallback list for older builds.
