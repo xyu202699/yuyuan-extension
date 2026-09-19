@@ -1,5 +1,5 @@
 const MODULE_NAME = 'yuyuan-extension';
-const EXTENSION_VERSION = '0.9.26';
+const EXTENSION_VERSION = '0.9.27';
 const REMOTE_CORE_URL = 'https://yuyuan111.pages.dev/yuyuan.js';
 const REGEX_GROUPS_MODULE = 'modules/regex-groups/index.js';
 const PRESET_EDITOR_MODULE = 'modules/preset-editor/index.js';
@@ -863,6 +863,16 @@ function installNativeShims() {
     const root = getRootWindow();
     const context = () => root.SillyTavern?.getContext?.();
     const helper = () => root.TavernHelper;
+    if (typeof root.getCharData !== 'function') {
+        root.getCharData = () => {
+            const ctx = context();
+            if (Array.isArray(ctx?.characters)) {
+                const id = ctx.characterId;
+                return id == null || id === '' ? undefined : ctx.characters[id];
+            }
+            return helper()?.getCharData?.();
+        };
+    }
     const apiBase = (value) => {
         const text = String(value || '').trim().replace(/\/+$/, '');
         let url;
