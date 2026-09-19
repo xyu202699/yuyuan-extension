@@ -42,8 +42,22 @@
   function saveCfg() { try { TOP.localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); } catch (e) {} }
   var cfg = loadCfg();
 
-  var LS_KEY = 'yc_dock_v1';
-  function loadState() { try { return JSON.parse(TOP.localStorage.getItem(LS_KEY) || '{}') || {}; } catch (e) { return {}; } }
+  var LS_KEY = 'yc_collector_state_v1';
+  function loadState() {
+    try {
+      var stored = TOP.localStorage.getItem(LS_KEY);
+      if (stored != null) return JSON.parse(stored) || {};
+      // Older collector builds shared a key with the phone's home-screen Dock.
+      // Migrate only collector fields, leaving the phone layout untouched.
+      var old = JSON.parse(TOP.localStorage.getItem('yc_dock_v1') || '{}') || {};
+      var migrated = {};
+      ['docked', 'open', 'dockTop', 'handleTop'].forEach(function (key) {
+        if (Object.prototype.hasOwnProperty.call(old, key)) migrated[key] = old[key];
+      });
+      TOP.localStorage.setItem(LS_KEY, JSON.stringify(migrated));
+      return migrated;
+    } catch (e) { return {}; }
+  }
   function saveState() { try { TOP.localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch (e) {} }
   var state = loadState();
   state.docked = state.docked || {};
