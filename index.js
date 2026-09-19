@@ -1,5 +1,5 @@
 const MODULE_NAME = 'yuyuan-extension';
-const EXTENSION_VERSION = '0.9.21';
+const EXTENSION_VERSION = '0.9.22';
 const REMOTE_CORE_URL = 'https://yuyuan111.pages.dev/yuyuan.js';
 const REGEX_GROUPS_MODULE = 'modules/regex-groups/index.js';
 const PRESET_EDITOR_MODULE = 'modules/preset-editor/index.js';
@@ -930,8 +930,13 @@ function installNativeShims() {
                 await ctx.saveSettingsDebounced?.();
                 return next;
             }
-            if (typeof ctx.updateChatMetadata === 'function') ctx.updateChatMetadata({ variables: next }, false);
-            else ctx.chatMetadata.variables = next;
+            if (!ctx.chatMetadata || typeof ctx.chatMetadata !== 'object') {
+                throw new Error('当前聊天尚未就绪，请打开聊天后重试');
+            }
+            // A variable save must retain the active chat metadata identity.
+            // updateChatMetadata replaces that object, making pending core saves
+            // mistake this write for a chat switch and skip card-wide settings.
+            ctx.chatMetadata.variables = next;
             // Match Tavern Helper: commit the variables now and let the host batch
             // disk/network persistence. Waiting for saveMetadata blocks every app
             // and conversation click on a full chat save.
