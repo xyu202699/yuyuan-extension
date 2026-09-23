@@ -74,24 +74,47 @@ function correctLine(line, context, options, lineNumber) {
  */
 export function correctSameLayerMessage(source, options = {}) {
     const original = String(source ?? '');
-    if (!original || !/wxchead|wxhead|\bwx\s*[｜丨|]/i.test(original)) {
+    if (!original || !/wxchead|wxghead|wxhead|\bwx\s*[｜丨|]/i.test(original)) {
         return { text: original, changes: [] };
     }
 
     const lines = original.split(/(\r?\n)/);
     const changes = [];
     let context = null;
-    let fenced = false;
+    let fenced = '';
     let visibleLine = 0;
 
     for (let index = 0; index < lines.length; index += 2) {
         const line = lines[index];
         visibleLine += 1;
-        if (/^\s*```/.test(line)) {
-            fenced = !fenced;
+        const fence = line.match(/^\s*(`{3,}|~{3,})/);
+        if (fence) {
+            if (!fenced) fenced = fence[1];
+            else if (fenced[0] === fence[1][0] && fence[1].length >= fenced.length) fenced = '';
             continue;
         }
         if (fenced) continue;
+
+        const groupHeader = line.match(/^(\s*)wxghead\s*[｜丨|]\s*([^｜丨|\r\n]+?)\s*[｜丨|]([^\r\n]*)$/i);
+        if (groupHeader) {
+            context = null;
+            const users = nameSet(options.userName, '{{user}}', '{user}', 'user', '用户');
+            const members = groupHeader[3].split(/[、,，;；]/).map(value => value.trim()).filter(Boolean);
+            if (members.some(name => isNamed(name, users))) continue;
+            // Only an explicit user message in this session proves membership.
+            for (let next = index + 2; next < lines.length; next += 2) {
+                if (ANY_HEADER_RE.test(lines[next]) || /^\s*(?:`{3,}|~{3,})/.test(lines[next])) break;
+                const message = lines[next].match(/^\s*wxg\s*[｜丨|]\s*([^｜丨|\r\n]+?)\s*[｜丨|]\s*([^｜丨|\r\n]+?)\s*[｜丨|]\s*(.+)$/i);
+                if (!message || normalizeName(message[1]) !== normalizeName(groupHeader[2]) || !isNamed(message[2], users)) continue;
+                const user = String(options.userName || '').trim();
+                if (!user) break;
+                const after = `${groupHeader[1]}wxghead｜${groupHeader[2].trim()}｜${[...members, user].join('、')}`;
+                lines[index] = after;
+                changes.push({ line: visibleLine, reason: '用户已在该群发言，补入遗漏的群成员名单', before: line, after });
+                break;
+            }
+            continue;
+        }
 
         const privateHeader = line.match(PRIVATE_HEADER_RE);
         if (privateHeader) {
@@ -101,7 +124,7 @@ export function correctSameLayerMessage(source, options = {}) {
             const peers = new Map();
             let ambiguous = false;
             for (let next = index + 2; next < lines.length; next += 2) {
-                if (ANY_HEADER_RE.test(lines[next]) || /^\s*```/.test(lines[next])) break;
+                if (ANY_HEADER_RE.test(lines[next]) || /^\s*(?:`{3,}|~{3,})/.test(lines[next])) break;
                 const message = lines[next].match(WX_RE);
                 if (!message) continue;
                 const sender = message[2].trim(), recipient = message[3].trim();

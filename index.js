@@ -1,5 +1,5 @@
 const MODULE_NAME = 'yuyuan-extension';
-const EXTENSION_VERSION = '0.9.29';
+const EXTENSION_VERSION = '0.9.30';
 const REMOTE_CORE_URL = 'https://yuyuan111.pages.dev/yuyuan.js';
 const REGEX_GROUPS_MODULE = 'modules/regex-groups/index.js';
 const PRESET_EDITOR_MODULE = 'modules/preset-editor/index.js';
@@ -863,6 +863,17 @@ function installNativeShims() {
     const root = getRootWindow();
     const context = () => root.SillyTavern?.getContext?.();
     const helper = () => root.TavernHelper;
+    // Explicit settings saves wait for persistence; ordinary navigation stays batched.
+    root.__YUYUAN_FLUSH_SETTINGS__ = async () => {
+        const ctx = context();
+        if (!ctx?.chatMetadata) throw new Error('当前聊天尚未就绪，请稍后保存');
+        const saveChat = ctx.saveMetadata || ctx.saveChat;
+        if (typeof saveChat !== 'function') throw new Error('当前酒馆未提供聊天保存接口');
+        const saveGlobal = ctx.saveSettings || (await import('/script.js')).saveSettings;
+        if (typeof saveGlobal !== 'function') throw new Error('当前酒馆未提供设置保存接口');
+        await saveChat.call(ctx);
+        await saveGlobal.call(ctx);
+    };
     if (typeof root.getCharData !== 'function') {
         root.getCharData = () => {
             const ctx = context();
@@ -1051,13 +1062,52 @@ function installNativeShims() {
         root.getWorldbook = async (name) => {
             if (typeof helper()?.getWorldbook === 'function') return await helper().getWorldbook(name);
             const ctx = context();
-            if (!name || typeof ctx?.loadWorldInfo !== 'function') return [];
-            const book = await ctx.loadWorldInfo(name);
+            if (!name) return [];
+            const load = ctx?.loadWorldInfo || (await import('/scripts/world-info.js')).loadWorldInfo;
+            if (typeof load !== 'function') throw new Error('当前酒馆未提供世界书读取接口');
+            const book = await load(name);
             if (Array.isArray(book)) return book;
             if (Array.isArray(book?.entries)) return book.entries;
             if (book?.entries && typeof book.entries === 'object') return Object.values(book.entries);
             if (book && typeof book === 'object') return Object.values(book).filter(value => value && typeof value === 'object');
             return [];
+        };
+    }
+    if (typeof root.updateWorldbookWith !== 'function') {
+        const jobs = new Map();
+        root.updateWorldbookWith = (name, updater) => {
+            const task = (jobs.get(name) || Promise.resolve()).catch(() => {}).then(async () => {
+                if (typeof helper()?.updateWorldbookWith === 'function') return await helper().updateWorldbookWith(name, updater);
+                const ctx = context();
+                const world = typeof ctx?.loadWorldInfo === 'function' && typeof ctx?.saveWorldInfo === 'function'
+                    ? ctx : await import('/scripts/world-info.js');
+                if (!name || typeof world.loadWorldInfo !== 'function' || typeof world.saveWorldInfo !== 'function') throw new Error('当前酒馆未提供世界书读写接口');
+                const book = await world.loadWorldInfo(name);
+                if (!book?.entries || typeof book.entries !== 'object') throw new Error('世界书读取失败，未写入任何内容');
+                const entries = await updater(clonePlain(Object.values(book.entries)));
+                if (!Array.isArray(entries)) throw new Error('世界书条目格式不正确');
+                const used = new Set(entries.filter(e => e?.uid != null).map(e => String(e.uid)));
+                const result = {}; let next = 0;
+                for (const entry of entries) {
+                    const e = clonePlain(entry);
+                    if (e.uid == null) {
+                        while (used.has(String(next))) next++;
+                        e.uid = next++; used.add(String(e.uid));
+                    }
+                    if (Object.prototype.hasOwnProperty.call(result, e.uid)) throw new Error('世界书条目编号重复，未保存');
+                    e.comment ??= e.name || '';
+                    e.disable ??= e.enabled === false;
+                    e.key ??= e.keys || [];
+                    e.keysecondary ??= [];
+                    e.order ??= 100; e.position ??= 0;
+                    result[e.uid] = e;
+                }
+                await world.saveWorldInfo(name, { ...book, entries: result }, true);
+                return entries;
+            });
+            jobs.set(name, task);
+            task.finally(() => { if (jobs.get(name) === task) jobs.delete(name); }).catch(() => {});
+            return task;
         };
     }
 }
