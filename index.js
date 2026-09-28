@@ -1,5 +1,5 @@
 const MODULE_NAME = 'yuyuan-extension';
-const EXTENSION_VERSION = '0.9.32';
+const EXTENSION_VERSION = '0.9.33';
 const REMOTE_CORE_URL = 'https://yuyuan111.pages.dev/yuyuan.js';
 const REGEX_GROUPS_MODULE = 'modules/regex-groups/index.js';
 const PRESET_EDITOR_MODULE = 'modules/preset-editor/index.js';
@@ -865,14 +865,57 @@ function installNativeShims() {
     const helper = () => root.TavernHelper;
     // Explicit settings saves wait for persistence; ordinary navigation stays batched.
     root.__YUYUAN_FLUSH_SETTINGS__ = async () => {
-        const ctx = context();
-        if (!ctx?.chatMetadata) throw new Error('当前聊天尚未就绪，请稍后保存');
-        const saveChat = ctx.saveMetadata || ctx.saveChat;
-        if (typeof saveChat !== 'function') throw new Error('当前酒馆未提供聊天保存接口');
-        const saveGlobal = ctx.saveSettings || (await import('/script.js')).saveSettings;
-        if (typeof saveGlobal !== 'function') throw new Error('当前酒馆未提供设置保存接口');
-        await saveChat.call(ctx);
-        await saveGlobal.call(ctx);
+      const ctx = context();
+      const valid = () => {
+        const live = context();
+        return !!ctx && !!live && live.chatMetadata === ctx.chatMetadata && live.chatId === ctx.chatId && live.characterId === ctx.characterId && live.groupId === ctx.groupId;
+      };
+    const ensureCurrent = () => {
+      if (!valid()) throw new Error('聊天已切换，请回到原聊天确认保存');
+    };
+    ensureCurrent();
+    const saveChat = ctx && (ctx.saveMetadata || ctx.saveChat);
+    if (typeof saveChat !== 'function') throw new Error('当前酒馆没有可用的聊天保存接口');
+    if (await saveChat.call(ctx) === false) throw new Error('聊天保存未完成，请稍后重试');
+    ensureCurrent();
+    // Some hosts expose an immediate save. Never import script.js to obtain it:
+    // iframe/bundled hosts can initialize a second, broken module graph.
+    if (typeof ctx.saveSettings === 'function') {
+      if (await ctx.saveSettings.call(ctx) === false) throw new Error('设置保存未完成，请稍后重试');
+      ensureCurrent();
+      return;
+    }
+    const saveGlobal = ctx.saveSettingsDebounced;
+    const events = ctx.eventSource;
+    const eventName = (ctx.eventTypes || ctx.event_types || {}).SETTINGS_UPDATED || 'settings_updated';
+    const remove = events && (events.removeListener || events.off);
+    if (typeof saveGlobal !== 'function' || !events || typeof events.on !== 'function' || typeof remove !== 'function') {
+      throw new Error('当前酒馆尚未提供完整的设置保存接口，请等待酒馆加载完成后重试');
+    }
+    // The public debounced API returns before disk/network persistence. Wait for
+    // the host's success event; never mark a failed or merely scheduled save done.
+    await new Promise((resolve, reject) => {
+      let finished = false, timeout, guard;
+      const finish = error => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timeout); clearInterval(guard);
+        try { remove.call(events, eventName, saved); } catch (e) {}
+        if (error) reject(error); else resolve();
+      };
+      const saved = () => {
+        try { ensureCurrent(); finish(); } catch (e) { finish(e); }
+      };
+      try {
+        events.on(eventName, saved);
+        timeout = setTimeout(() => finish(new Error('尚未收到酒馆的保存完成确认，请检查连接后重试')), 15000);
+        guard = setInterval(() => { try { ensureCurrent(); } catch (e) { finish(e); } }, 100);
+        ensureCurrent();
+        const pending = saveGlobal.call(ctx);
+        if (pending && typeof pending.then === 'function') pending.catch(finish);
+      } catch (e) { finish(e); }
+    });
+    ensureCurrent();
     };
     if (typeof root.getCharData !== 'function') {
         root.getCharData = () => {
