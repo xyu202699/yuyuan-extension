@@ -1,5 +1,5 @@
 const MODULE_NAME = 'yuyuan-extension';
-const EXTENSION_VERSION = '0.9.31';
+const EXTENSION_VERSION = '0.9.32';
 const REMOTE_CORE_URL = 'https://yuyuan111.pages.dev/yuyuan.js';
 const REGEX_GROUPS_MODULE = 'modules/regex-groups/index.js';
 const PRESET_EDITOR_MODULE = 'modules/preset-editor/index.js';
@@ -989,6 +989,8 @@ function installNativeShims() {
                     model, messages, stream: false, max_tokens: Number(custom.max_tokens) || Number(ctx?.chatCompletionSettings?.openai_max_tokens) || 4096 };
                 if (custom.temperature != null && Number.isFinite(Number(custom.temperature))) body.temperature = Number(custom.temperature);
                 const json = await requestJson('/api/backends/chat-completions/generate', body, 180000);
+                const finishReason = json.choices?.[0]?.finish_reason ?? json.stop_reason;
+                if (finishReason === 'length' || finishReason === 'max_tokens') throw new Error('模型达到最大输出长度，回复被截断。请调高所用连接的最大输出长度，或减少一次生成的篇数/条数后重试');
                 const content = json.choices?.[0]?.message?.content ?? json.choices?.[0]?.text ?? json.content;
                 const text = Array.isArray(content) ? content.filter(part => part?.type === 'text').map(part => part.text || '').join('') : content;
                 if (typeof text !== 'string' || !text.trim()) throw new Error('模型未返回文字，请检查模型或稍后重试');

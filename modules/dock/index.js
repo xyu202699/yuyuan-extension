@@ -737,6 +737,7 @@
     cfg.enabled = !!enabled;
     saveCfg();
     if (cfg.enabled) buildDock(); else destroyDock();
+    syncMenuEntry();
     return ROOT.getConfig();
   };
   ROOT.setHideHandle = function (hidden) {
@@ -786,21 +787,34 @@
         TOP.registerSlashCommand('dock', cb, [], help, true, true);
       }
     } catch (e) {}
-    var tries = 0;
-    (function tryMenu() {
-      try {
-        var menu = DOC.getElementById('extensionsMenu');
-        if (!menu) { if (tries++ < 25) setTimeout(tryMenu, 800); return; }
-        if (DOC.getElementById('yc-dock-menu-item')) return;
-        var item = DOC.createElement('div');
-        item.id = 'yc-dock-menu-item';
-        item.className = 'list-group-item flex-container flexGap5 interactable';
-        item.tabIndex = 0;
-        item.innerHTML = '<div class="fa-solid fa-inbox" style="width:1em;text-align:center;"></div><span>' + YCDK_NAME + '</span>';
-        item.addEventListener('click', function () { try { TOP.__ycDockToggle && TOP.__ycDockToggle(); } catch (e) {} });
-        menu.appendChild(item);
-      } catch (e) {}
-    })();
+    syncMenuEntry();
+  }
+  var menuRetry = null, menuTries = 0;
+  function syncMenuEntry() {
+    if (menuRetry !== null) { clearTimeout(menuRetry); menuRetry = null; }
+    if (TOP.__ycDock !== ROOT) return;
+    var existing = DOC.getElementById('yc-dock-menu-item');
+    if (!cfg.enabled) {
+      if (existing) existing.remove();
+      menuTries = 0;
+      return;
+    }
+    try {
+      var menu = DOC.getElementById('extensionsMenu');
+      if (!menu) {
+        if (menuTries++ < 25) menuRetry = setTimeout(syncMenuEntry, 800);
+        return;
+      }
+      menuTries = 0;
+      if (existing) return;
+      var item = DOC.createElement('div');
+      item.id = 'yc-dock-menu-item';
+      item.className = 'list-group-item flex-container flexGap5 interactable';
+      item.tabIndex = 0;
+      item.innerHTML = '<div class="fa-solid fa-inbox" style="width:1em;text-align:center;"></div><span>' + YCDK_NAME + '</span>';
+      item.addEventListener('click', function () { try { TOP.__ycDockToggle && TOP.__ycDockToggle(); } catch (e) {} });
+      menu.appendChild(item);
+    } catch (e) {}
   }
 
   // ================= 更新：用 ST 自己的接口自动检测 + 一键更新 =================
@@ -885,7 +899,7 @@
       host.appendChild(box); S.el = box;
       var en = box.querySelector('#ycdk-enabled'), hh = box.querySelector('#ycdk-hidehandle');
       en.checked = cfg.enabled; hh.checked = cfg.hideHandle;
-      on(S, en, 'change', function () { cfg.enabled = en.checked; saveCfg(); if (cfg.enabled) buildDock(); else destroyDock(); });
+      on(S, en, 'change', function () { ROOT.setEnabled(en.checked); });
       on(S, hh, 'change', function () { cfg.hideHandle = hh.checked; saveCfg(); applyHideHandle(); });
 
       var stEl = box.querySelector('.ycdk-upd-state'), btn = box.querySelector('.ycdk-upd-btn'), mode = null;
