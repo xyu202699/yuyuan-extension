@@ -43,7 +43,7 @@ function toast(message, type = 'info') {
 function readPrefs(root = getRoot()) {
     try {
         const saved = JSON.parse(root.localStorage.getItem(PREFS_KEY) || '{}') || {};
-        return { theme: saved.theme === 'dark' ? 'dark' : 'day' };
+        return { theme: saved.theme === 'dark' ? 'dark' : 'day', sourceName: typeof saved.sourceName === 'string' ? saved.sourceName : '' };
     } catch {
         return { theme: 'day' };
     }
@@ -59,7 +59,10 @@ function savePrefs(patch, root = getRoot()) {
 function readDrafts(root = getRoot()) {
     try {
         const drafts = JSON.parse(root.localStorage.getItem(DRAFTS_KEY) || '[]');
-        return Array.isArray(drafts) ? drafts.filter(draft => draft?.id && draft?.name) : [];
+        // Older libraries were appended in creation order and had no timestamp.
+        return Array.isArray(drafts) ? drafts.filter(draft => draft?.id && draft?.name)
+            .map((draft, index) => ({ ...draft, createdAt: Number.isFinite(draft.createdAt) && draft.createdAt > 0 ? draft.createdAt : index + 1 }))
+            .sort((a, b) => b.createdAt - a.createdAt) : [];
     } catch {
         return [];
     }
@@ -411,9 +414,9 @@ function staticPanelHtml() {
             <div class="ype-busy" data-ype-busy hidden><span></span><b>正在保存预设…</b></div>
             <div class="ype-expand-editor" data-ype-expand-editor hidden>
                 <section role="dialog" aria-modal="true" aria-labelledby="ype-expand-title">
-                    <header><h3 id="ype-expand-title">编辑条目内容</h3><button type="button" data-ype-action="expand-close" aria-label="关闭">×</button></header>
-                    <textarea data-ype-expand-textarea></textarea>
-                    <footer><button type="button" class="ype-secondary" data-ype-action="expand-close">取消</button><button type="button" class="ype-primary" data-ype-action="expand-apply">应用内容</button></footer>
+                    <header><div><h3 id="ype-expand-title">编辑条目内容</h3><small data-ype-expand-source hidden></small></div><button type="button" data-ype-action="expand-close" aria-label="关闭">×</button></header>
+                    <textarea data-ype-expand-textarea aria-label="条目内容"></textarea>
+                    <footer><span data-ype-expand-error role="alert" hidden></span><button type="button" class="ype-secondary" data-ype-action="expand-close">取消</button><button type="button" class="ype-primary" data-ype-action="expand-apply">应用内容</button></footer>
                 </section>
             </div>
         </div>`;
@@ -432,9 +435,10 @@ function closePanel(root = getRoot(), { restore = true } = {}) {
 
 function buildController(panel, { presets, currentName }) {
     const root = getRoot();
+    const rememberedSource = readPrefs(root).sourceName;
     const state = {
         mode: 'copy',
-        sourceName: presets.find(name => name !== currentName) || currentName,
+        sourceName: presets.includes(rememberedSource) ? rememberedSource : presets.find(name => name !== currentName) || currentName,
         targetName: currentName,
         sourcePreset: null,
         targetPreset: null,
@@ -449,7 +453,6 @@ function buildController(panel, { presets, currentName }) {
         status: 'preserve',
         saving: false,
     };
-    state.drafts.forEach(draft => state.selectedDrafts.add(draft.id));
     const q = selector => panel.querySelector(selector);
     const qa = selector => Array.from(panel.querySelectorAll(selector));
     let loadSource;
@@ -516,7 +519,20 @@ function buildController(panel, { presets, currentName }) {
             text.append(name, preview);
             const role = root.document.createElement('em');
             role.textContent = item.role;
-            row.append(checkbox, check, text, role);
+            const edit = root.document.createElement('button');
+            edit.type = 'button';
+            edit.className = 'ype-source-edit';
+            edit.dataset.ypeAction = 'edit-source';
+            edit.title = `查看和编辑「${item.name}」`;
+            edit.setAttribute('aria-label', edit.title);
+            edit.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 5 4 4M4 20l4-1L20 7a2.8 2.8 0 0 0-4-4L4 15l-1 6Z"/></svg>';
+            edit.addEventListener('click', event => {
+                event.preventDefault();
+                event.stopPropagation();
+                openSourceEditor(item);
+            });
+            row.classList.add('ype-copy-row');
+            row.append(checkbox, check, text, role, edit);
             return row;
         })));
         q('[data-ype-source-count]').textContent = `${visible.length} 个条目`;
@@ -534,6 +550,16 @@ function buildController(panel, { presets, currentName }) {
         const rows = qa('[data-ype-list] [data-identifier]');
         rows.forEach(row => { row.querySelector('input').checked = state.selected.has(row.dataset.identifier); });
         q('[data-ype-action="toggle-all"]').textContent = rows.length && rows.every(row => state.selected.has(row.dataset.identifier)) ? '取消全选' : '全选';
+    };
+
+    const updateSourceSnapshot = (name, preset) => {
+        if (state.sourceName !== name) return;
+        state.sourcePreset = preset;
+        state.sourceItems = listEditablePrompts(preset);
+        const identifiers = new Set(state.sourceItems.map(item => item.identifier));
+        state.selected = new Set([...state.selected].filter(id => identifiers.has(id)));
+        renderSourceItems();
+        renderSelection();
     };
 
     const selectedEditItem = () => state.editItems.find(item => item.identifier === state.editIdentifier) || null;
@@ -679,8 +705,11 @@ function buildController(panel, { presets, currentName }) {
             return;
         }
         const injectionPosition = Number(q('[data-ype-field="injection"]').value) === 1 ? 1 : 0;
+        const existing = state.drafts.find(item => item.id === state.editingDraftId);
         const draft = {
+            ...existing,
             id: state.editingDraftId || root.crypto?.randomUUID?.() || `draft-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+            createdAt: existing?.createdAt ?? state.drafts.reduce((latest, item) => Math.max(latest, item.createdAt + 1), Date.now()),
             name,
             content: contentInput.value,
             role: q('[data-ype-field="role"]').value,
@@ -690,8 +719,7 @@ function buildController(panel, { presets, currentName }) {
         };
         const index = state.drafts.findIndex(item => item.id === draft.id);
         if (index >= 0) state.drafts[index] = draft;
-        else state.drafts.push(draft);
-        state.selectedDrafts.add(draft.id);
+        else state.drafts.unshift(draft);
         saveDrafts(state.drafts, root);
         resetDraftEditor();
         nameInput.focus({ preventScroll: true });
@@ -706,6 +734,7 @@ function buildController(panel, { presets, currentName }) {
         if (request !== sourceRequest || name !== state.sourceName || !panel.isConnected) return;
         state.sourcePreset = preset;
         state.sourceItems = listEditablePrompts(state.sourcePreset);
+        savePrefs({ sourceName: name }, root);
         state.selected.clear();
         renderSourceItems();
         renderSelection();
@@ -844,11 +873,13 @@ function buildController(panel, { presets, currentName }) {
     };
 
     const closeExpandedEditor = () => {
+        if (state.saving) return;
         const editor = q('[data-ype-expand-editor]');
         q('[data-ype-expand-textarea]').blur();
         editor.hidden = true;
         panel.scrollTop = Number(editor.dataset.previousScroll || 0);
         delete editor.dataset.targetField;
+        state.sourceEdit = null;
     };
 
     const openExpandedEditor = field => {
@@ -859,6 +890,10 @@ function buildController(panel, { presets, currentName }) {
         editor.dataset.previousScroll = panel.scrollTop;
         panel.scrollTop = 0;
         q('[data-ype-expand-textarea]').value = input.value;
+        state.sourceEdit = null;
+        q('[data-ype-expand-source]').hidden = true;
+        q('[data-ype-expand-error]').hidden = true;
+        q('[data-ype-action="expand-apply"]').textContent = '应用内容';
         q('#ype-expand-title').textContent = field === 'edit-content' ? '编辑预设条目内容' : '新建条目内容';
         editor.hidden = false;
         if (root.matchMedia('(pointer:fine)').matches) {
@@ -866,7 +901,71 @@ function buildController(panel, { presets, currentName }) {
         }
     };
 
+    const openSourceEditor = item => {
+        if (state.saving || !state.sourcePreset) return;
+        const editor = q('[data-ype-expand-editor]');
+        state.sourceEdit = { presetName: state.sourceName, identifier: item.identifier, content: item.content };
+        delete editor.dataset.targetField;
+        editor.dataset.previousScroll = panel.scrollTop;
+        panel.scrollTop = 0;
+        q('#ype-expand-title').textContent = item.name;
+        const source = q('[data-ype-expand-source]');
+        source.textContent = `来源预设：${state.sourceName}`;
+        source.hidden = false;
+        q('[data-ype-expand-textarea]').value = item.content;
+        q('[data-ype-expand-error]').hidden = true;
+        q('[data-ype-action="expand-apply"]').textContent = '保存到来源预设';
+        editor.hidden = false;
+    };
+
+    const saveSourceContent = async () => {
+        if (state.saving || !state.sourceEdit) return;
+        const edit = { ...state.sourceEdit };
+        const content = q('[data-ype-expand-textarea]').value;
+        q('[data-ype-expand-error]').hidden = true;
+        setBusy(true);
+        let saved = false;
+        try {
+            // Read again so saving one entry never restores stale preset settings.
+            const preset = await getPresetSnapshot(edit.presetName);
+            const prompt = getPromptById(preset, edit.identifier);
+            if (!prompt || String(prompt.content || '') !== edit.content) {
+                updateSourceSnapshot(edit.presetName, preset);
+                throw new Error(prompt ? '这个条目已在别处修改，请关闭后重新打开再编辑' : '这个条目已不存在，请关闭后重新选择');
+            }
+            prompt.content = content;
+            if (runtime) runtime.repairing = true;
+            await savePresetSnapshot(edit.presetName, preset, { refreshCurrent: true });
+            updateSourceSnapshot(edit.presetName, preset);
+            if (state.targetName === edit.presetName) state.targetPreset = preset;
+            if (state.editPresetName === edit.presetName) {
+                state.editPreset = preset;
+                state.editItems = listEditablePrompts(preset);
+                renderEditItems();
+                fillEditForm();
+            }
+            await resetOrderSnapshot();
+            setMessage(`「${prompt.name || edit.identifier}」已保存到来源预设`, 'success');
+            toast('条目内容已保存到来源预设', 'success');
+            saved = true;
+        } catch (error) {
+            const message = q('[data-ype-expand-error]');
+            message.textContent = `保存失败：${error.message || error}`;
+            message.hidden = false;
+        } finally {
+            if (runtime) runtime.repairing = false;
+            if (panel.isConnected) {
+                setBusy(false);
+                if (saved) closeExpandedEditor();
+            }
+        }
+    };
+
     const applyExpandedEditor = () => {
+        if (state.sourceEdit) {
+            saveSourceContent();
+            return;
+        }
         const editor = q('[data-ype-expand-editor]');
         const input = q(`[data-ype-field="${editor.dataset.targetField || ''}"]`);
         if (input) {
@@ -881,6 +980,8 @@ function buildController(panel, { presets, currentName }) {
         state.saving = busy;
         q('[data-ype-busy]').hidden = !busy;
         qa('button,select,input,textarea').forEach(control => control.disabled = busy);
+        q('[data-ype-expand-editor]').setAttribute('aria-busy', String(busy));
+        if (state.sourceEdit) q('[data-ype-action="expand-apply"]').textContent = busy ? '正在保存…' : '保存到来源预设';
     };
 
     const submit = async () => {
