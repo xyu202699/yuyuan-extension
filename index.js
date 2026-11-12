@@ -1556,7 +1556,7 @@ async function performCoreLoad(options = {}) {
         script.referrerPolicy = 'no-referrer';
         script.dataset.extensionVersion = EXTENSION_VERSION;
         script.onload = resolve;
-        script.onerror = () => reject(new Error(`无法加载远程核心：${REMOTE_CORE_URL}`));
+        script.onerror = () => reject(new Error('无法加载远程核心，请检查网络后重试'));
         (root.document.head || root.document.documentElement).appendChild(script);
     });
     try {
